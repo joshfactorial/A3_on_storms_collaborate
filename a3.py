@@ -1,7 +1,10 @@
-# Testing
+def main():
+    """
 
-print('Hello World!')
+    :return:
+    """
+    pass
 
-Print('Hello World Again')
 
-print('Hello World')
+if __name__ == '__main__':
+    main()

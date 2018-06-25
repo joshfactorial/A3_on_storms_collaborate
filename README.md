@@ -9,3 +9,5 @@ processor. I've added comment for every segment of code in it, but let me know i
 want me to explain. The output will (and needs to) be improved, or at least explain what each element means.
 This can be done after all three requirements are finished. -Haocong 6/24/18
 
+I added a couple functions from the class notes that seemed helpful -josh 6/25
+

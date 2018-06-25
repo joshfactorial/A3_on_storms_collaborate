@@ -16,4 +16,5 @@ stated in last class, there are no longer issues from the dataset so I don't thi
 I also removed the bearing for storm_direction since the requirement doesn't seem to need it. It only asked for
 distance travelled without direction. So I think it's not needed. I'll leave them as comments in case we need it
 for the next two parts.
-For now, I'll optimize the process file function and try to separate a few more functions from it. -Haocong 6/25 15:45
+I'll take a look at 3 later tonight. Feel free to add anything for 2 and 3 if you wish to. 2 should be very easy.
+   -Haocong 6/25 15:45

@@ -3,11 +3,11 @@ from pygeodesy import ellipsoidalVincenty as ev
 
 
 def storm_distance(coords:list) -> (float, float):
-    """Computes and ouputs total distance the storm moved
+    """Computes and ouputs total distance the storm moved, as well as it's final bearing.
 
     :param coords: A list containing the ellapsed time and coordinates from the previous
     storm location to the current
-    :return: the distance in miles as a float
+    :return: the distance in meters as a float
     >>>storm_distance([6.0, '15.0N', '59.0W', '16.0N', '60.6W'])
     (204584.77333140429, 302.74119499532304)
     """

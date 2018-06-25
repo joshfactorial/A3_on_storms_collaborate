@@ -7,6 +7,8 @@ def storm_distance(point_a: pg.LatLon, point_b: pg.LatLon) -> float:
     :param point_a: A LatLon object defined in pygeodesy package. The first parameter is Latitude and second is Longitude
     :param point_b: A LatLon object defined in pygeodesy package. The first parameter is Latitude and second is Longitude
     :return: The distance between point_a and point_b as a float in nautical miles
+    >>> storm_distance(pg.LatLon('0.0N', '90.0W'), pg.LatLon('0.0N', '90.0W'))
+    0
     """
     # If two points are the same, return 0 as distance. Otherwise throw exception
     if point_a == point_b:
@@ -14,34 +16,36 @@ def storm_distance(point_a: pg.LatLon, point_b: pg.LatLon) -> float:
 
     # If two points are different, calculate distance and final bearing
     else:
-        distance, bearing = point_a.distanceTo3(point_b)[0]/1852.0, point_a.distanceTo3(point_b)[2]
-        return distance, bearing
+        # distance, bearing = point_a.distanceTo3(point_b)[0]/1852.0, point_a.distanceTo3(point_b)[2]
+        # return distance, bearing
+        distance = point_a.distanceTo3(point_b)[0] / 1852.0
+        return distance
 
 
-def flip_direction(direction: str) -> str:
-    """Given a compass direction 'E', 'W', 'N', or 'S', return the opposite.
-    Raises exception with none of those.
-    :param direction: a string containing 'E', 'W', 'N', or 'S'
-    :return: a string containing 'E', 'W', 'N', or 'S'
-    >>> flip_direction('E')
-    'W'
-    >>> flip_direction('S')
-    'N'
-    >>> flip_direction('SE')  # test an unsupported value
-    Traceback (most recent call last):
-    ...
-    ValueError: Invalid or unsupported direction SE given.
-    """
-    if direction == 'E':
-        return 'W'
-    elif direction == 'W':
-        return 'E'
-    elif direction == 'N':
-        return 'S'
-    elif direction == 'S':
-        return 'N'
-    else:
-        raise ValueError('Invalid or unsupported direction {} given.'.format(direction))
+# def flip_direction(direction: str) -> str:
+#     """Given a compass direction 'E', 'W', 'N', or 'S', return the opposite.
+#     Raises exception with none of those.
+#     :param direction: a string containing 'E', 'W', 'N', or 'S'
+#     :return: a string containing 'E', 'W', 'N', or 'S'
+#     >>> flip_direction('E')
+#     'W'
+#     >>> flip_direction('S')
+#     'N'
+#     >>> flip_direction('SE')  # test an unsupported value
+#     Traceback (most recent call last):
+#     ...
+#     ValueError: Invalid or unsupported direction SE given.
+#     """
+#     if direction == 'E':
+#         return 'W'
+#     elif direction == 'W':
+#         return 'E'
+#     elif direction == 'N':
+#         return 'S'
+#     elif direction == 'S':
+#         return 'N'
+#     else:
+#         raise ValueError('Invalid or unsupported direction {} given.'.format(direction))
 
 
 def hours_elapsed(ts1: str, ts2:str) -> float:
@@ -65,33 +69,33 @@ def hours_elapsed(ts1: str, ts2:str) -> float:
     pass
 
 
-def myLatLon(lat: str, lon: str) -> pg.LatLon:
-    """Given a latitude and longitude, normalize the longitude if necessary,
-    to return a valid ellipsoidalVincenty.LatLon object.
-    :param lat: the latitude as a string
-    :param lon: the longitude as a string
-    >>> a = ev.LatLon('45.1N', '2.0E')
-    >>> my_a = myLatLon('45.1N', '2.0E')
-    >>> a == my_a
-    True
-    >>> my_b = myLatLon('45.1N', '358.0W')
-    >>> a == my_b  # make sure it normalizes properly
-    True
-    >>> myLatLon('15.1', '68.0')
-    LatLon(15°06′00.0″N, 068°00′00.0″E)
-    """
-    if lon[-1] in ['E', 'W']:
-        # parse string to separate direction from number portion:
-        lon_num = float(lon[:-1])
-        lon_dir = lon[-1]
-    else:
-        lon_num = float(lon)
-    if lon_num > 180.0:  # Does longitude exceed range?
-        lon_num = 360.0 - lon_num
-        lon_dir = flip_direction(lon_dir)
-        lon = str(lon_num) + lon_dir
-
-    return pg.LatLon(lat, lon)
+# def myLatLon(lat: str, lon: str) -> pg.LatLon:
+#     """Given a latitude and longitude, normalize the longitude if necessary,
+#     to return a valid ellipsoidalVincenty.LatLon object.
+#     :param lat: the latitude as a string
+#     :param lon: the longitude as a string
+#     >>> a = ev.LatLon('45.1N', '2.0E')
+#     >>> my_a = myLatLon('45.1N', '2.0E')
+#     >>> a == my_a
+#     True
+#     >>> my_b = myLatLon('45.1N', '358.0W')
+#     >>> a == my_b  # make sure it normalizes properly
+#     True
+#     >>> myLatLon('15.1', '68.0')
+#     LatLon(15°06′00.0″N, 068°00′00.0″E)
+#     """
+#     if lon[-1] in ['E', 'W']:
+#         # parse string to separate direction from number portion:
+#         lon_num = float(lon[:-1])
+#         lon_dir = lon[-1]
+#     else:
+#         lon_num = float(lon)
+#     if lon_num > 180.0:  # Does longitude exceed range?
+#         lon_num = 360.0 - lon_num
+#         lon_dir = flip_direction(lon_dir)
+#         lon = str(lon_num) + lon_dir
+#
+#     return pg.LatLon(lat, lon)
 
 
 def storm_propogation(y):
@@ -294,7 +298,15 @@ def main():
 
     :return:
     """
-    pass
+    sum = {}
+
+    with open('hurdat2-1851-2017-050118.txt', 'r') as fi:
+        alstorm = process_file(fi, sum)
+
+    with open('hurdat2-nepac-1949-2017-050418.txt', 'r') as fi:
+        epstorm = process_file(fi, sum)
+
+    print(sum)
 
 
 if __name__ == '__main__':

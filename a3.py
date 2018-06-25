@@ -12,10 +12,10 @@ def storm_distance(point_a: pg.LatLon, point_b: pg.LatLon) -> float:
     if point_a == point_b:
         return 0
 
-    # If two points are different, calculate distance
+    # If two points are different, calculate distance and final bearing
     else:
-        distance = point_a.distanceTo(point_b)/1852.0
-        return distance
+        distance, bearing = point_a.distanceTo3(point_b)[0]/1852.0, point_a.distanceTo3(point_b)[2]
+        return distance, bearing
 
 
 def flip_direction(direction: str) -> str:

@@ -110,7 +110,7 @@ def max_mean_speeds(speed_list: list) -> (float, float):
     return maximum_speed, mean_speed
 
 
-def add_summary(current_year: int, year_storm: int, year_hur: int, summary: dict) -> list:
+def add_summary(current_year: int, year_storm: int, year_hur: int, summary: dict) -> dict:
     """ Adds up the summary number of storms and hurricanes in each year
 
     :param summary: The current list of summary that will be processed
@@ -161,9 +161,11 @@ def to_integer(x: str, default_output=0) -> int:
         return default_output
 
 
-def process_file(f, summary: dict) -> list:
+def process_file(f, summary: dict, total_sample: int, total_true: int) -> list:
     """Takes the file opened and process the file line by line
 
+    :param total_true: TTotal number of cases that follows the hypothesis
+    :param total_sample: Total number of cases that can be used in testing hypothesis
     :param f: the file connection that takes the file to read
     :param summary: a list that takes the summary data of processed storms of another file
     :return: a list of summarized data for all storms in the file
@@ -185,9 +187,6 @@ def process_file(f, summary: dict) -> list:
     year_hur = 0  # Number of hurricanes in this year. Reset to 0 for each new year
     a = pg.LatLon  # Stores the LatLon data of the previous line
     dist = 0.00  # Total distance travelled by each storm. Reset to 0.00 after each storm
-    total_sample = 0  # Total number of cases that can be used in testing hypothesis
-    total_true = 0  # Total number of cases that follows the hypothesis
-    time_current = ''  # Time of the current sample as a string
     time_previous = ''  # time of the previous sample as a string
     storm_speeds = []  # keep track of the speed, in knots, of each sample, in order to process the mean and max
 
@@ -256,12 +255,16 @@ def process_file(f, summary: dict) -> list:
                 # Add the distance travelled by the storm between current and previous point
                 dist += dist_bear[0]
 
+                # Test hypothesis
                 radii = [to_integer(item, -999) for item in values_on_line[8:12]]
                 hypothesis = test_hypothesis(dist_bear[1], radii)
 
+                # If hypothesis met, count success and case
                 if hypothesis == 1:
                     total_true += 1
                     total_sample += 1
+
+                # If hypothesis did not meet, count the total cases only
                 elif hypothesis == 0:
                     total_sample += 1
 
@@ -312,8 +315,8 @@ def process_file(f, summary: dict) -> list:
                 # calculate the percentage of samples
 
                 # Add all data recorded into list s
-                s += [date_start, date_end, max_wind, max_date, max_time, landfall, float("{0:.2f}".format(dist))
-                      , float("{0:.2f}".format(max_storm_propogation)), float("{0:.2f}".format(mean_storm_propogation))]
+                s += [date_start, date_end, max_wind, max_date, max_time, landfall, float("{0:.2f}".format(dist)),
+                      float("{0:.2f}".format(max_storm_propogation)), float("{0:.2f}".format(mean_storm_propogation))]
 
                 # Print the data of this storm
                 print(s)
@@ -338,29 +341,36 @@ def process_file(f, summary: dict) -> list:
     # Add the summary data of the last year processed in the file
     add_summary(current_year, year_storm, year_hur, summary)
 
-    print("Storms satisfying hypothesis: {0:.2f}".format((total_true / total_sample)*100) + "%")
-
-    # Return the list of storms
-    return storm
+    # Return the list with total_sample and total_true
+    return [total_sample, total_true]
 
 
 def main():
-    """
+    """ The main function that will be executed first.
 
     :return:
     """
-    summary = {}
 
+    # Define default variables that will be preserved throughout the program
+    summary = {}    # A dictionary with total storms and hurricanes per year
+    total_sample = 0  # Total number of cases that can be used in testing hypothesis
+    total_true = 0  # Total number of cases that follows the hypothesis
+
+    # Print the format of output for reference
     print("Storm ID, Storm Name, Start Date, End Date, Max Wind Speed, Date Max wind, Time Max Wind, "
           "# Landfalls, Total Distance, Max Prop Speed, Mean Prop Speed")
 
+    # Process file 1
     with open('hurdat2-1851-2017-050118.txt', 'r') as fi:
-        process_file(fi, summary)
+        [total_sample, total_true] = process_file(fi, summary, total_sample, total_true)
 
+    # Process file 2
     with open('hurdat2-nepac-1949-2017-050418.txt', 'r') as fi:
-        process_file(fi, summary)
+        [total_sample, total_true] = process_file(fi, summary, total_sample, total_true)
 
+    # Print the summary data and conclusion from hypothesis
     print(summary)
+    print("Storms satisfying hypothesis: {0:.2f}".format((total_true / total_sample) * 100) + "%")
 
 
 if __name__ == '__main__':

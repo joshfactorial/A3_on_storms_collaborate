@@ -22,3 +22,6 @@ to those code later in the day. Some other improvements to the code as well. -Ha
 
 I updated the calculate hours function I resorted to datetime because it was taking too long to try to do
 manually. I can work on the hpythosis test next. I think I understand what needs to be done there.-Josh 2am.
+
+nvmd, I see you got that one. sorry, I got lost in the  weeds calculating hours. It looks like there is one function
+remaining? I can take care of that. -Josh 2am

@@ -1,3 +1,7 @@
+# IS 590 PR Assignment 3
+# by Haocong Cheng & Joshua Allen
+# Last modified 6/26/18
+
 from pygeodesy import ellipsoidalVincenty as pg
 from datetime import datetime
 

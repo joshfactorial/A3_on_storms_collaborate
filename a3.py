@@ -20,7 +20,7 @@ def storm_distance_bearing(point_a: pg.LatLon, point_b: pg.LatLon) -> list:
     # If two points are different, calculate distance and final bearing
     else:
         dist_bear = point_a.distanceTo3(point_b)
-        return [dist_bear[0] / 1852.0, dist_bear[2]]
+        return [dist_bear[0] / 1852.0, dist_bear[1]]
 
 
 def test_hypothesis(bearing: float, wind_radii: list) -> int:
@@ -346,6 +346,9 @@ def main():
     :return:
     """
     summary = {}
+
+    print("Storm ID, Storm Name, Start Date, End Date, Max Wind Speed, Date Max wind, Time Max Wind, "
+          "# Landfalls, Total Distance, Max Prop Speed, Mean Prop Speed")
 
     with open('hurdat2-1851-2017-050118.txt', 'r') as fi:
         process_file(fi, summary)

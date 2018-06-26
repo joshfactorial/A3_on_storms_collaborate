@@ -19,3 +19,6 @@ I'll take a look at 3 later tonight. Feel free to add anything for 2 and 3 if yo
 
 Basic requirement for 3 should have been met at this time. It can be improved to make it better. I'll add comments
 to those code later in the day. Some other improvements to the code as well. -Haocong 6/26 0:30
+
+I updated the calculate hours function I resorted to datetime because it was taking too long to try to do
+manually. I can work on the hpythosis test next. I think I understand what needs to be done there.-Josh 2am.

@@ -15,7 +15,9 @@ I reviewed those functions again. It seems that the flip direction and myLatLon 
 stated in last class, there are no longer issues from the dataset so I don't think we need them for it anymore.
 storm_distance is now outputing both distance and bearing and is named storm_distance_bearing
 I'll take a look at 3 later tonight. Feel free to add anything for 2 and 3 if you wish to. 2 should be very easy.
-   -Haocong 6/25 15:45
+   -Haocong 6/25 15:45-
+
+        Cool, it seemed like LatLon function would still be usefull, but I see how you incorporated it in. -jma
 
 Basic requirement for 3 should have been met at this time. It can be improved to make it better. I'll add comments
 to those code later in the day. Some other improvements to the code as well. -Haocong 6/26 0:30

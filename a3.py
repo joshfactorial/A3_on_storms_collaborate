@@ -63,6 +63,7 @@ def hours_elapsed(ts1: str, ts2: str) -> float:
     >>> # this confirms timestamp order doesn't matter:
     >>> hours_elapsed('20160301 0000', '20160229 1800')
     6.0
+
     """
 
     try:

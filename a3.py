@@ -1,4 +1,5 @@
 from pygeodesy import ellipsoidalVincenty as pg
+from datetime import datetime
 
 
 def storm_distance(point_a: pg.LatLon, point_b: pg.LatLon) -> float:
@@ -52,17 +53,32 @@ def hours_elapsed(ts1: str, ts2:str) -> float:
     :param ts1: date & 24-hr time as a string like '20160228 1830'
     :param ts2: date & 24-hr time as a string like '20160228 2200'
     :return: elapsed hours between ts1 & ts2, as a float.
-     >>> hours_elapsed('20160228 1830', '20160228 2200')
+    >>> hours_elapsed('20160228 1830', '20160228 2200')
     3.5
     >>> hours_elapsed('20160229 1815', '20160301 0000')
     5.75
     >>> # this confirms timestamp order doesn't matter:
     >>> hours_elapsed('20160301 0000', '20160229 1800')
     6.0
+
     """
 
-    # TODO: Implement this function
-    pass
+    try:
+        time1 = datetime.strptime(ts1, '%Y%m%d %H%M')
+        time2 = datetime.strptime(ts2, '%Y%m%d %H%M')
+        # the difference is in seconds, so divide by 3600 to get total hours
+        if time1 > time2:
+            difference = time1-time2
+            return difference.total_seconds()/60/60
+        elif time1 < time2:
+            difference = time2-time1
+            return difference.total_seconds()/60/60
+        # if the 2 datetimes are equal
+        else:
+            return 0.0
+
+    except ValueError:
+        print("The values were not proper time and date values")
 
 
 def myLatLon(lat: str, lon: str) -> pg.LatLon:

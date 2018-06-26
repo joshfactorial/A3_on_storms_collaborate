@@ -10,6 +10,8 @@ def storm_distance_bearing(point_a: pg.LatLon, point_b: pg.LatLon) -> list:
     :return: The distance between point_a and point_b as a float in nautical miles
     >>> storm_distance_bearing(pg.LatLon('0.0N', '90.0W'), pg.LatLon('0.0N', '90.0W'))
     [0, -1]
+    >>> storm_distance_bearing(pg.LatLon('15.0N', '59.0W'), pg.LatLon('16.0N', '60.6W'))
+    [110.28249410147036, 302.58817298995035]
     """
     # If two points are the same, return 0 as distance. Otherwise throw exception
     if point_a == point_b:
@@ -18,7 +20,7 @@ def storm_distance_bearing(point_a: pg.LatLon, point_b: pg.LatLon) -> list:
     # If two points are different, calculate distance and final bearing
     else:
         dist_bear = point_a.distanceTo3(point_b)
-        return [dist_bear[0] / 1852.0, dist_bear[1]]
+        return [dist_bear[0] / 1852.0, dist_bear[2]]
 
 
 def test_hypothesis(bearing: float, wind_radii: list) -> int:
@@ -28,6 +30,14 @@ def test_hypothesis(bearing: float, wind_radii: list) -> int:
     :param wind_radii: A list of 34-kt wind radii maximum extent in four quadrants (NE. SE, SW, NW)
     :param bearing: The bearing from the previous point.
     :return: 1 for following hypothesis; 0 for not following hypothesis; -1 for not enough data to test
+    >>>test_hypothesis(302.58817298995035, [30, 0, 0, 0])
+    1
+    >>>test_hypothesis(234.3342, [-999,-999,-999,-999])
+    -1
+    >>>test_hypothesis(453.993, [300, 200, 100, 50])
+    -1
+    >>>test_hypothesis(302.58, [0, 0, 0, 30])
+    0
     """
     max_radii = max(wind_radii)
     if max_radii == 0 or max_radii == -999:
@@ -63,7 +73,6 @@ def hours_elapsed(ts1: str, ts2: str) -> float:
     >>> # this confirms timestamp order doesn't matter:
     >>> hours_elapsed('20160301 0000', '20160229 1800')
     6.0
-
     """
 
     try:
@@ -76,7 +85,7 @@ def hours_elapsed(ts1: str, ts2: str) -> float:
         elif time1 < time2:
             difference = time2-time1
             return difference.total_seconds()/60/60
-        # if the 2 datetimes are equal
+        # if the 2 date-times are equal
         else:
             return 0.0
 
@@ -84,14 +93,17 @@ def hours_elapsed(ts1: str, ts2: str) -> float:
         print("The values were not proper time and date values")
 
 
-def storm_propogation(y):
-    """Calculates the speed, in knots, for each storm sample, based on coordinates and time, then calculates the
-    mean and maximum speed and outputs those quantities
-
-    :param y:
-    :return:
+def max_mean_speeds(speed_list: list) -> (float, float):
     """
-    pass
+
+    :param speed_list: a list of storm speeds
+    :return: the max and mean of the list
+    >>>max_mean_speeds([13.5, 12.3, 11.9, 8.8])
+    (13.5, 11.625
+    """
+    maximum_speed = max(speed_list)
+    mean_speed = sum(speed_list) / float(len(speed_list))
+    return maximum_speed, mean_speed
 
 
 def add_summary(current_year: int, year_storm: int, year_hur: int, summary: dict) -> list:
@@ -129,6 +141,14 @@ def to_integer(x: str, default_output=0) -> int:
     :param default_output: Default output from the function if ValueError raises.
     :param x: The string to be transformed
     :return: The integer read from the input
+    >>>to_integer('0')
+    0
+    >>>to_integer('124')
+    124
+    >>>to_integer('124.5')
+    124
+    >>>to_integer('a')
+    0
     """
     try:
         x = int(x)
@@ -163,7 +183,9 @@ def process_file(f, summary: dict) -> list:
     dist = 0.00  # Total distance travelled by each storm. Reset to 0.00 after each storm
     total_sample = 0  # Total number of cases that can be used in testing hypothesis
     total_true = 0  # Total number of cases that follows the hypothesis
-    current_time = None
+    time_current = ''  # Time of the current sample as a string
+    time_previous = ''  # time of the previous sample as a string
+    storm_speeds = []  # keep track of the speed, in knots, of each sample, in order to process the mean and max
 
     # Read one line from the file
     for line in f:
@@ -204,8 +226,6 @@ def process_file(f, summary: dict) -> list:
                 max_date = date_start
                 max_wind = to_integer(values_on_line[6])
 
-                current_time = date_start
-
                 # Find the year of this storm
                 year = int(date_start / 10000)
 
@@ -241,6 +261,20 @@ def process_file(f, summary: dict) -> list:
                 elif hypothesis == 0:
                     total_sample += 1
 
+                # assemble a list of the speeds, in knots, of the samples
+                if i == 2:
+                    # for the first sample, just record the time, no caluclation
+                    time_previous = values_on_line[0] + ' ' + values_on_line[1]
+                else:
+                    # take the current time
+                    time_current = values_on_line[0] + ' ' + values_on_line[1]
+
+                    # calculate the speed in knots and add it to the list of speeds
+                    storm_speeds.append(dist_bear[0]/hours_elapsed(time_previous, time_current))
+
+                    # after calculation, update the previous time
+                    time_previous = values_on_line[0] + ' ' + values_on_line[1]
+
                 # Set the current point as previous point for next line
                 a = b
 
@@ -265,11 +299,17 @@ def process_file(f, summary: dict) -> list:
             # Reached the last line of this storm.
             if i == j:
 
+                # calculate the max and mean of the speeds
+                max_storm_propogation, mean_storm_propogation = max_mean_speeds(storm_speeds)
+
                 # Record the date as the end date
                 date_end = to_integer(values_on_line[0], date_end)
 
+                # calculate the percentage of samples
+
                 # Add all data recorded into list s
-                s += [date_start, date_end, max_wind, max_date, max_time, landfall, float("{0:.2f}".format(dist))]
+                s += [date_start, date_end, max_wind, max_date, max_time, landfall, float("{0:.2f}".format(dist))
+                      , float("{0:.2f}".format(max_storm_propogation)), float("{0:.2f}".format(mean_storm_propogation))]
 
                 # Print the data of this storm
                 print(s)
@@ -294,7 +334,7 @@ def process_file(f, summary: dict) -> list:
     # Add the summary data of the last year processed in the file
     add_summary(current_year, year_storm, year_hur, summary)
 
-    print(total_true / total_sample)
+    print("Storms satisfying hypothesis: {0:.2f}".format((total_true / total_sample)*100) + "%")
 
     # Return the list of storms
     return storm
@@ -313,7 +353,7 @@ def main():
     with open('hurdat2-nepac-1949-2017-050418.txt', 'r') as fi:
         process_file(fi, summary)
 
-    print(sum)
+    print(summary)
 
 
 if __name__ == '__main__':

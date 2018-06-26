@@ -27,3 +27,5 @@ manually. I can work on the hpythosis test next. I think I understand what needs
 
 nvmd, I see you got that one. sorry, I got lost in the  weeds calculating hours. It looks like there is one function
 remaining? I can take care of that. -Josh 2am
+
+Okay, added in the speed caluclations and output! -JMA 6/26

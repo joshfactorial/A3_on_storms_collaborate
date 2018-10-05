@@ -361,15 +361,15 @@ def main():
           "# Landfalls, Total Distance, Max Prop Speed, Mean Prop Speed")
 
     # Process file 1
-    with open('hurdat2-1851-2017-050118.txt', 'r') as fi:
-        [total_sample, total_true] = process_file(fi, summary, total_sample, total_true)
+    # with open('hurdat2-1851-2017-050118.txt', 'r') as fi:
+    #     [total_sample, total_true] = process_file(fi, summary, total_sample, total_true)
 
     # Process file 2
     with open('hurdat2-nepac-1949-2017-050418.txt', 'r') as fi:
         [total_sample, total_true] = process_file(fi, summary, total_sample, total_true)
 
     # Print the summary data and conclusion from hypothesis
-    print(summary)
+    # print(summary)
     print("Storms satisfying hypothesis: {0:.2f}".format((total_true / total_sample) * 100) + "%")
 
 
